@@ -1,14 +1,16 @@
-struct FactoredNumber {
+pub struct FactoredNumber {
   number: u32,
   factors: Vec<(u32, u32)>
 }
 
 impl FactoredNumber {
   pub fn new(number: u32) -> FactoredNumber {
-    FactoredNumber {
+    let mut obj = FactoredNumber {
       number,
       factors: Vec::new()
-    }
+    };
+    obj.calculate_factors();
+    obj
   }
 
   pub fn calculate_factors(&mut self) {
@@ -76,48 +78,50 @@ pub fn get_next_prime(n: u32) -> u32 {
   return result;
 }
 
-pub fn merge_factors(factor1: Vec<(u32, u32)>, factor2: Vec<(u32, u32)>) -> Vec<(u32, u32)> {
-  let factor1 = factor1.clone();
-  let factor2 = factor2.clone();
-  let mut merged_factors: Vec<(u32, u32)> = Vec::new();
+pub fn calculate_lcm_and_hcf(number1: &FactoredNumber, number2: &FactoredNumber) -> (Vec<(u32, u32)>, Vec<(u32, u32)>) {
+  let factor1 = number1.factors.clone();
+  let factor2 = number2.factors.clone();
+  let mut lcm: Vec<(u32, u32)> = Vec::new();
+  let mut hcf: Vec<(u32, u32)> = Vec::new();
   let mut i = 0;
   let mut j = 0;
   while i < factor1.len() && j < factor2.len() {
     if factor1[i].0 < factor2[j].0 {
-      merged_factors.push(factor1[i]);
+      lcm.push(factor1[i]);
       i += 1;
     } else if factor1[i].0 > factor2[j].0 {
-      merged_factors.push(factor2[j]);
+      lcm.push(factor2[j]);
       j += 1;
     } else {
-      // both are equal, take the larger power
+      // both are equal, take the larger power for lcm, smaller power for hcf
       if factor1[i].1 > factor2[j].1 {
-        merged_factors.push(factor1[i]);
+        lcm.push(factor1[i]);
+        hcf.push(factor2[j]);
       } else {
-        merged_factors.push(factor2[j]);
+        lcm.push(factor2[j]);
+        hcf.push(factor1[i]);
       }
       i += 1;
       j += 1;
     }
   }
   while i < factor1.len() {
-    merged_factors.push(factor1[i]);
+    lcm.push(factor1[i]);
     i += 1;
   }
   while j < factor2.len() {
-    merged_factors.push(factor2[j]);
+    lcm.push(factor2[j]);
     j += 1;
   }
-  merged_factors
+  (lcm, hcf)
 }
 
 pub fn runner() {
-  let mut number1 = FactoredNumber::new(4);
-  number1.calculate_factors();
+  let number1 = FactoredNumber::new(24);
+  let number2 = FactoredNumber::new(30);
 
-  let mut number2 = FactoredNumber::new(20);
-  number2.calculate_factors();
+  let (lcm, hcf) = calculate_lcm_and_hcf(&number1, &number2);
 
-  let merged_factors = merge_factors(number1.factors, number2.factors);
-  println!("{}", FactoredNumber::to_string(merged_factors));
+  println!("LCM: {}", FactoredNumber::to_string(lcm));
+  println!("HCF: {}", FactoredNumber::to_string(hcf));
 }
