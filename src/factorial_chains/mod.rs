@@ -21,7 +21,43 @@ pub fn search(head: Option<Box<Node>>, data: u32) -> Option<Box<Node>> {
   }
 }
 
-pub fn insert(bst: &mut Node) {}
+pub fn insert(head: &mut Option<&mut Box<Node>>, data: u32) -> Result<(), String> {
+  match head {
+    Some(ref mut node) => {
+      if data <= node.data {
+        match &mut node.left {
+          None => {
+            node.left = Some(Box::new(Node {
+              data: data,
+              left: None,
+              right: None,
+            }));
+          },
+          Some(left_node) => {
+            let left = &mut *left_node;
+            return insert(&mut Some(left), data);
+          }
+        };
+      } else {
+        match &mut node.right {
+          None => {
+            node.right = Some(Box::new(Node {
+              data: data,
+              left: None,
+              right: None,
+            }));
+          },
+          Some(right_node) => {
+            let right = &mut *right_node;
+            return insert(&mut Some(right), data);
+          }
+        };
+      }
+      Ok(())
+    }
+    None => Err(String::from("Empty tree")),
+  }
+}
 
 pub fn runner() {
   let number = 100;
@@ -39,14 +75,12 @@ pub fn runner() {
     })),
   }));
 
-  let result = search(node, 15);
+  insert(&mut node.as_mut(), 45);
+
+  let result = search(node, 45);
 
   match result {
-    Some(node) => {
-      println!("found {}", node.data)
-    }
-    None => {
-      println!("Nothing found")
-    }
+    Some(node) => println!("found {}", node.data),
+    None => println!("Nothing found"),
   };
 }
